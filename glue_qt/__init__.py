@@ -1,5 +1,6 @@
 import sys
 from .qglue import qglue
+from .patches import *
 
 __all__ = ['qglue']
 
