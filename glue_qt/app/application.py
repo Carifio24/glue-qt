@@ -26,6 +26,7 @@ from glue_qt.app.edit_subset_mode_toolbar import EditSubsetModeToolBar
 from glue_qt.app.mdi_area import GlueMdiArea
 from glue_qt.app.layer_tree_widget import PlotAction, LayerTreeWidget
 from glue_qt.app.preferences import PreferencesDialog
+from glue_qt.utils.helpers import is_descendant_of
 from glue_qt.viewers.common.data_viewer import DataViewer
 from glue_qt.viewers.scatter import ScatterViewer
 from glue_qt.viewers.image import ImageViewer
@@ -320,6 +321,10 @@ class GlueApplication(Application, QtWidgets.QMainWindow):
         self.new_tab()
         self._update_viewer_in_focus()
 
+    def _on_tab_change(self, *args):
+        self._button_ipython.setChecked(False)
+        self._update_viewer_in_focus(args)
+
     def _update_viewer_in_focus(self, *args):
 
         if not hasattr(self, '_viewer_in_focus'):
@@ -584,6 +589,11 @@ class GlueApplication(Application, QtWidgets.QMainWindow):
 
         w = self.tab_widget.widget(index)
 
+        terminal_tab = self._terminal_tab()
+        if index == terminal_tab:
+            page = self.tab(index)
+            page.removeSubWindow(self._terminal)
+
         if len(w.subWindowList()) > 0:
 
             if warn and not os.environ.get('GLUE_TESTING'):
@@ -729,7 +739,7 @@ class GlueApplication(Application, QtWidgets.QMainWindow):
         self._layer_widget.setup(self._data)
 
         self.tab_widget.tabCloseRequested.connect(self.close_tab)
-        self.tab_widget.currentChanged.connect(self._update_viewer_in_focus)
+        self.tab_widget.currentChanged.connect(self._on_tab_change)
 
     def _create_menu(self):
         mbar = self.menuBar()
@@ -1165,15 +1175,31 @@ class GlueApplication(Application, QtWidgets.QMainWindow):
             self._terminal.closed.connect(self._on_terminal_close)
             self._hide_terminal()
 
+    def _move_terminal_to_tab(self, tab):
+        page = self.tab(tab)
+        page.addSubWindow(self._terminal)
+
+    def _terminal_tab(self):
+        for tab in range(self.tab_count):
+            page = self.tab(tab)
+            if is_descendant_of(self._terminal, page):
+                return tab
+        return None
+
     def _toggle_terminal(self):
         if self._terminal is None:
             self._create_terminal()
+
         if self._terminal.isVisible():
             self._hide_terminal()
             if self._terminal.isVisible():
                 warnings.warn("An unexpected error occurred while "
                               "trying to hide the terminal")
         else:
+            terminal_tab = self._terminal_tab()
+            current_tab_index = self.get_tab_index(self.current_tab)
+            if terminal_tab != current_tab_index:
+                self._move_terminal_to_tab(current_tab_index)
             self._show_terminal()
             if not self._terminal.isVisible():
                 warnings.warn("An unexpected error occurred while "
