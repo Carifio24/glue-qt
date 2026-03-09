@@ -234,7 +234,7 @@ def is_descendant_of(descendant_widget, ancestor_widget):
     Checks if descendant_widget is a descendant (child, grandchild, etc.)
     of ancestor_widget.
     """
-    if not ancestor_widget:
+    if not (ancestor_widget and descendant_widget):
         return False
 
     current_parent = descendant_widget.parent()

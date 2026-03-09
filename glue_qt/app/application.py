@@ -322,7 +322,9 @@ class GlueApplication(Application, QtWidgets.QMainWindow):
         self._update_viewer_in_focus()
 
     def _on_tab_change(self, *args):
-        self._button_ipython.setChecked(False)
+        index = args[0]
+        check = index == self._terminal_tab() and self._terminal is not None and self._terminal.isVisible()
+        self._button_ipython.setChecked(check)
         self._update_viewer_in_focus(args)
 
     def _update_viewer_in_focus(self, *args):
