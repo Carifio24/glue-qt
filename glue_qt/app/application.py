@@ -323,7 +323,7 @@ class GlueApplication(Application, QtWidgets.QMainWindow):
 
     def _on_tab_change(self, *args):
         index = args[0]
-        check = index == self._terminal_tab() and self._terminal is not None and self._terminal.isVisible()
+        check = index == self.terminal_tab and self._terminal is not None and self._terminal.isVisible()
         self._button_ipython.setChecked(check)
         self._update_viewer_in_focus(args)
 
@@ -591,8 +591,7 @@ class GlueApplication(Application, QtWidgets.QMainWindow):
 
         w = self.tab_widget.widget(index)
 
-        terminal_tab = self._terminal_tab()
-        if index == terminal_tab:
+        if index == self.terminal_tab:
             page = self.tab(index)
             page.removeSubWindow(self._terminal)
 
@@ -1181,7 +1180,8 @@ class GlueApplication(Application, QtWidgets.QMainWindow):
         page = self.tab(tab)
         page.addSubWindow(self._terminal)
 
-    def _terminal_tab(self):
+    @property
+    def terminal_tab(self):
         for tab in range(self.tab_count):
             page = self.tab(tab)
             if is_descendant_of(self._terminal, page):
@@ -1198,9 +1198,8 @@ class GlueApplication(Application, QtWidgets.QMainWindow):
                 warnings.warn("An unexpected error occurred while "
                               "trying to hide the terminal")
         else:
-            terminal_tab = self._terminal_tab()
             current_tab_index = self.get_tab_index(self.current_tab)
-            if terminal_tab != current_tab_index:
+            if self.terminal_tab != current_tab_index:
                 self._move_terminal_to_tab(current_tab_index)
             self._show_terminal()
             if not self._terminal.isVisible():
