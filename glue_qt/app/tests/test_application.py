@@ -90,23 +90,23 @@ class TestGlueApplication(object):
 
         self.app._toggle_terminal()
         assert self.app._terminal.isVisible()
-        assert self.app.terminal_tab is 0
+        assert self.app.terminal_tab == 0
 
         self.app._toggle_terminal()
         assert not self.app._terminal.isVisible()
-        assert self.app.terminal_tab is 0
+        assert self.app.terminal_tab == 0
 
         self.app.new_tab()
         self.app.tab_widget.setCurrentIndex(1)
-        assert self.app.terminal_tab is 0
+        assert self.app.terminal_tab == 0
 
         self.app._toggle_terminal()
         assert self.app._terminal.isVisible()
-        assert self.app.terminal_tab is 1
+        assert self.app.terminal_tab == 1
 
         self.app._toggle_terminal()
         assert not self.app._terminal.isVisible()
-        assert self.app.terminal_tab is 1
+        assert self.app.terminal_tab == 1
 
         self.app.close_tab(1)
         assert self.app.terminal_tab is None
@@ -115,7 +115,7 @@ class TestGlueApplication(object):
 
         self.app._toggle_terminal()
         assert self.app._terminal.isVisible()
-        assert self.app.terminal_tab is 0
+        assert self.app.terminal_tab == 0
 
     @requires_ipython
     def test_terminal_warnings(self):
